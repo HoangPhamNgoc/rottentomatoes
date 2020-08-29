@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Aug 28 15:38:12 2020
+import pickle
 
-@author: mkhoa
-"""
+# Load saved model
+clf = pickle.load(open('model.sav', 'rb'))
 
+#predict function
+def predict(text):
+    return clf.predict([text])

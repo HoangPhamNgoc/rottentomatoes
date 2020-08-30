@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 import pickle
+from pathlib import Path
 
+
+script_location = Path(__file__).absolute().parent
 # Streamlit encourages well-structured code, like starting execution in a main() function.
 def main():
     # Once we have the dependencies, add a selector for the app mode on the sidebar.
@@ -19,8 +22,8 @@ def main():
 # Load saved model
 @st.cache(allow_output_mutation=True)
 def load_model():
-    model1 = pickle.load(open('model1.sav', 'rb'))
-    model2 = pickle.load(open('model2.sav', 'rb'))
+    model1 = pickle.load(open(script_location / 'model1.sav', 'rb'))
+    model2 = pickle.load(open(script_location / 'model2.sav', 'rb'))
     return model1, model2
 
 # Predict function by model 1, non-convertred sentiment

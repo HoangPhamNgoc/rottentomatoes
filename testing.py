@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
+import re
 import pickle
 from pathlib import Path
 
@@ -8,6 +9,20 @@ script_location = Path(__file__).absolute().parent
 def load_model():
     model1 = pickle.load(open(script_location / 'model1.sav', 'rb'))
     return model1
+
+def preprocessor(text):
+    """ Return a cleaned version of text
+        
+    """   
+    # Remove HTML markup
+    text = re.sub('<[^>]*>', '', text)
+    # Remove emoticons
+    text = re.sub('(?::|;|=)(?:-)?(?:\)|\(|D|P)', '', text)
+    # Remove any non-word character and digit
+    text = re.sub('[^A-Za-z ]+', '', text)
+    # Also Convert to lower case
+    text = (re.sub('[\W]+', ' ', text.lower()))    
+    return text
 
 def predict(phrase):
     return int(model1.predict([phrase]))

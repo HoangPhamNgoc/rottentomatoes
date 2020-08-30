@@ -13,6 +13,7 @@ import pickle
 
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
+from pathlib import Path
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -20,7 +21,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-
+script_location = Path(__file__).absolute().parent
 #Function to clean data
 def preprocessor(text):
     """ Return a cleaned version of text

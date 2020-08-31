@@ -7,6 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import wordcloud as wordcloud
 import os, urllib
+import sys
 
 from collections import Counter
 from pathlib import Path
@@ -20,9 +21,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
-
-
-
+sys.setrecursionlimit(15000)
 script_location = Path(__file__).absolute().parent
 # Streamlit encourages well-structured code, like starting execution in a main() function.
 def main():
@@ -220,5 +219,6 @@ if __name__ == "__main__":
     model1, model2 = load_model()
     df = load_dataframe()
     main()
-   
+    
+
 

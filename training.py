@@ -30,6 +30,8 @@ def preprocessor(text):
     """   
     # Remove HTML markup
     text = re.sub('<[^>]*>', '', text)
+    # Replace n't at note
+    text = re.sub("n't", 'not', text)
     # Remove emoticons
     text = re.sub('(?::|;|=)(?:-)?(?:\)|\(|D|P)', '', text)
     # Remove any non-word character and digit

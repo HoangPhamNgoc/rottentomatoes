@@ -10,6 +10,7 @@ import pandas as pd
 import re
 import nltk
 import pickle
+import sys
 
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
@@ -83,8 +84,9 @@ def main():
     # Construct pipeline
     count = CountVectorizer(stop_words=stop_words, preprocessor=preprocessor)
     clf = Pipeline([('vect', count), ('clf', LogisticRegression(random_state=0, max_iter=1000, n_jobs=6))])
+
     # ovr = OneVsRestClassifier(clf)
-    clf.fit(X_train, y_train)
+    clf.fit(X, y)
     prediction = clf.predict(X_test)
     
     #Print Result
@@ -104,7 +106,7 @@ def main():
     
     # Construct pipeline
     clf = Pipeline([('vect', count), ('clf', LogisticRegression(random_state=0, max_iter=1000, n_jobs=6))])
-    clf.fit(X_train, y_train_2)
+    clf.fit(X, y2)
     prediction2 = clf.predict(X_test)
     
     #Print Result

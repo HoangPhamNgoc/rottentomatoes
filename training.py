@@ -60,6 +60,16 @@ def convert(sentiment):
         sentiment = 2 # Positive
     
     return sentiment
+
+def add_stop_word():
+    '''Add StopWord relate to movie/film manually
+    
+    '''
+    stopword_list = {'movi', 'film', 'one', 'hi', 'thi'}
+    stopword = stopwords.words('english')
+    for word in stopword_list:
+        stopword.append(word)
+    return stopword
     
 def main():
     """Function to run training model
@@ -71,11 +81,12 @@ def main():
     
     # Download stopwords
     nltk.download('stopwords')
-    stop_words = stopwords.words('english')
-        
+    stop_words = add_stop_word()
+            
     # Convert
     df['converted_sentiment'] = df['Sentiment'].apply(convert)
     df['preprocessed'] = df['Phrase'].apply(preprocessor)
+    df['keyword_list'] = df['preprocessed'].apply(tokenizer_porter)
     pickle.dump(df, open('DataFrame.sav', 'wb')) 
     
     # Training model on non-converted Sentiment

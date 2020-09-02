@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
+import pandas as pd
 import re
 import pickle
 import nltk
@@ -25,6 +26,9 @@ sys.setrecursionlimit(15000)
 script_location = Path(__file__).absolute().parent
 # Streamlit encourages well-structured code, like starting execution in a main() function.
 def main():
+    '''Main function that will run the whole app
+    
+    '''
     # Once we have the dependencies, add a selector for the app mode on the sidebar.
     st.title('Movie Review Sentiment Analysis')
     st.sidebar.title("What to do")
@@ -42,34 +46,90 @@ def main():
 # Load saved model
 @st.cache(allow_output_mutation=True)
 def load_model():
+    '''Load save trained logistics regression model from pickle file
+    
+    '''
     model1 = pickle.load(open(script_location / 'model1.sav', 'rb'))
     model2 = pickle.load(open(script_location / 'model2.sav', 'rb'))
     return model1, model2
 
 @st.cache(allow_output_mutation=True)
 def load_dataframe():
+    '''Load DataFrame to make basic data analyzing
+    
+    '''
     df = pickle.load(open(script_location / 'DataFrame.sav', 'rb'))
     return df
 
+@st.cache
+def add_stop_word():
+    '''Add StopWord relate to movie/film manually
+    
+    '''
+    stopword_list = {'movi', 'film', 'one', 'hi', 'thi'}
+    stopword = stopwords.words('english')
+    for word in stopword_list:
+        stopword.append(word)
+    return stopword
+
 # Most common word
 @st.cache
-def most_common(df):    
+def most_common(df):
+    '''Return most common keyword
+    
+    '''    
     vocab = Counter()
     for phrase in df.preprocessed:
         for word in phrase.split(' '):
               vocab[word] += 1
               
     most_common = vocab.most_common(10)
-    return most_common
+    return pd.DataFrame(most_common, columns=['Word', 'Count'])
+
+@st.cache
+def most_common_negative(df):
+    '''Return most common keyword in negative review and remove stop words
+    
+    '''    
+    vocab = Counter()
+    for phrase in df[df['Sentiment'] < 2].keyword_list:
+        for word in phrase:
+              vocab[word] += 1
+              
+    most_common_negative = vocab.most_common(100)
+    most_common_negative = pd.DataFrame(most_common_negative, columns=['Word', 'Count'])
+    most_common_negative = most_common_negative[~most_common_negative['Word'].isin(stopword)]
+    return most_common_negative
+
+@st.cache
+def most_common_positive(df):
+    '''Return most common keyword in positive review and remove stop words
+    
+    '''    
+    vocab = Counter()
+    for phrase in df[df['Sentiment'] > 2].keyword_list:
+        for word in phrase:
+              vocab[word] += 1
+              
+    most_common_positive = vocab.most_common(100)
+    most_common_positive = pd.DataFrame(most_common_positive, columns=['Word', 'Count'])
+    most_common_positive = most_common_positive[~most_common_positive['Word'].isin(stopword)]
+    return most_common_positive
 
 # Download a single file and make its content available as a string.
 @st.cache(show_spinner=False)
 def get_file_content_as_string(path):
+    '''To read source code from github
+    
+    '''
     url = 'https://raw.githubusercontent.com/mkhoa/rottentomatoes/master/' + path
     response = urllib.request.urlopen(url)
     return response.read().decode("utf-8")
 
 def createWordCloud(df):
+    '''Create World Cloud visualization
+    
+    '''
     word = []  
     for phrase in df.preprocessed:
         for i in phrase.split(' '):
@@ -101,7 +161,7 @@ def tokenizer_porter(text):
     
     """
     porter = PorterStemmer()
-    return [porter.stem(word) for word in text.split()]\
+    return [porter.stem(word) for word in text.split()]
           
 def convert(sentiment):
     """Convert from 5 sentiment to 3 sentiment
@@ -118,6 +178,9 @@ def convert(sentiment):
 
 # Predict function by model 1, non-convertred sentiment
 def model1_predict(text):
+    '''Convert number result to text result for Model 1
+    
+    '''
     prediction = model1.predict([text])
     if prediction==0:  
         return 'Negative'
@@ -132,6 +195,9 @@ def model1_predict(text):
     
 # Predict function
 def model2_predict(text):
+    '''Convert number result to text result for Model 2
+    
+    '''
     prediction = model2.predict([text])
     if prediction==0:  
         return 'Negative'
@@ -143,6 +209,9 @@ def model2_predict(text):
    
 # Introduction
 def intro():
+    '''Section for introduction and dataset discovery
+    
+    '''
     st.title('About Dataset')
     image = Image.open(script_location / 'logo.jpg')
     st.image(image)
@@ -167,12 +236,21 @@ def intro():
     st.pyplot()
     st.markdown('## Most common word in review')
     st.write(most_common(df))
+    st.markdown('''Most common word contain very neutral words like 'the, a, of, and, .etc'. We will try eliminate these word using stopword.
+                ''')
+    st.markdown('### Most common word in positive review')
+    st.write(most_common_positive(df))
+    st.markdown('### Most common word in negative review')
+    st.write(most_common_negative(df))
     st.markdown('**Word Cloud**')
     createWordCloud(df)
     st.pyplot()
     
 # Function to run the prediction demo   
 def run_the_app():
+    '''Execute the app to predict sentiment base on input comment
+    
+    '''
     user_input = st.text_input("Review Text", 'This is an example review for movie')
     st.write('Prediction by model 1, training by using original sentiment')
     st.write(model1_predict(user_input))
@@ -180,6 +258,10 @@ def run_the_app():
     st.write(model2_predict(user_input))
     
 def show_source_code(df):
+    '''Code to print out my source code
+    
+    
+    '''
     st.code(get_file_content_as_string("training.py")) 
     # Training model on non-converted Sentiment
     X = df['Phrase']
@@ -218,7 +300,7 @@ if __name__ == "__main__":
     # Load saved model
     model1, model2 = load_model()
     df = load_dataframe()
+    stopword = add_stop_word()
     main()
     
-
 
